@@ -1,4 +1,10 @@
-import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Genre } from './genre.entity';
 
 @Entity({ name: 'movies' })
@@ -15,7 +21,7 @@ export class Movie {
   @Column()
   releaseDate: Date;
 
-  @ManyToMany(() => Genre, genre => genre.movies, { cascade: true })
+  @ManyToMany(() => Genre, (genre) => genre.movies, { cascade: true })
   @JoinTable({
     name: 'movies_genres', // The name of the join table
     joinColumn: {

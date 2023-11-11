@@ -21,43 +21,56 @@ export class MoviesService {
 
   async createMovie(createMovieDto: CreateMovieDto): Promise<Movie> {
     console.log('Received createMovieDto:', createMovieDto);
-  
-    const { title, description, releaseDate, genre: genreNames } = createMovieDto;
-  
+
+    const {
+      title,
+      description,
+      releaseDate,
+      genre: genreNames,
+    } = createMovieDto;
+
     // Split the genre string into an array for internal processing or validation
     const genreArray = genreNames.split(',');
-  
+
     // Find existing genres
-    const existingGenres = await this.genreRepository.find({ where: { name: In(genreArray) } });
-  
+    const existingGenres = await this.genreRepository.find({
+      where: { name: In(genreArray) },
+    });
+
     // Create genres that don't exist
-    const missingGenreNames = genreArray.filter((name) => !existingGenres.find((genre) => genre.name === name));
-    const newGenres = missingGenreNames.map((newGenreName) => this.genreRepository.create({ name: newGenreName }));
+    const missingGenreNames = genreArray.filter(
+      (name) => !existingGenres.find((genre) => genre.name === name),
+    );
+    const newGenres = missingGenreNames.map((newGenreName) =>
+      this.genreRepository.create({ name: newGenreName }),
+    );
     const savedGenres = await this.genreRepository.save(newGenres);
-  
+
     // Create the movie entity without the genres property
     const movie: DeepPartial<Movie> = {
       title: title,
       description: description,
       releaseDate: releaseDate,
     };
-  
+
     // Attach genres to the movie
     movie.genres = [...existingGenres, ...savedGenres];
-  
+
     // Save the movie with the associated genres
     return await this.moviesRepository.save(movie);
   }
-  
 
-  async findAllMovies(page: number = 1, pageSize: number = 10): Promise<Movie[]> {
-    const queryBuilder = this.moviesRepository.createQueryBuilder('movie')
+  async findAllMovies(
+    page: number = 1,
+    pageSize: number = 10,
+  ): Promise<Movie[]> {
+    const queryBuilder = this.moviesRepository
+      .createQueryBuilder('movie')
       .skip((page - 1) * pageSize) // Skip records based on the page number
       .take(pageSize); // Retrieve a specific number of records
-  
+
     return queryBuilder.getMany();
   }
-  
 
   async findOneMovie(id: number) {
     return await this.moviesRepository.findOne({ where: { id } });
@@ -79,11 +92,17 @@ export class MoviesService {
       const genreArray = genreNames.split(',');
 
       // Find existing genres
-      const existingGenres = await this.genreRepository.find({ where: { name: In(genreArray) } });
+      const existingGenres = await this.genreRepository.find({
+        where: { name: In(genreArray) },
+      });
 
       // Create genres that don't exist
-      const missingGenreNames = genreArray.filter((name) => !existingGenres.find((genre) => genre.name === name));
-      const newGenres = missingGenreNames.map((newGenreName) => this.genreRepository.create({ name: newGenreName }));
+      const missingGenreNames = genreArray.filter(
+        (name) => !existingGenres.find((genre) => genre.name === name),
+      );
+      const newGenres = missingGenreNames.map((newGenreName) =>
+        this.genreRepository.create({ name: newGenreName }),
+      );
       const savedGenres = await this.genreRepository.save(newGenres);
 
       // Attach genres to the movie
@@ -109,18 +128,20 @@ export class MoviesService {
 
   async createGenre(createGenreDto: CreateGenreDto) {
     // Check if the genre already exists
-    const existingGenre = await this.genreRepository.findOne({ where: { name: createGenreDto.name } });
-  
+    const existingGenre = await this.genreRepository.findOne({
+      where: { name: createGenreDto.name },
+    });
+
     if (existingGenre) {
       // If the genre already exists, you can choose to throw an error, return the existing genre, or handle it in a way that fits your application logic.
       // For simplicity, let's throw an error.
       throw new ConflictException('Genre already exists');
     }
-  
+
     // If the genre doesn't exist, create and save it
     const genre = this.genreRepository.create(createGenreDto);
     return await this.genreRepository.save(genre);
-  }  
+  }
 
   async findAllGenres() {
     return await this.genreRepository.find();
@@ -152,9 +173,10 @@ export class MoviesService {
     if (genre) {
       queryBuilder = queryBuilder
         .innerJoin('movie.genres', 'genre')
-        .andWhere('LOWER(genre.name) LIKE :genre', { genre: `%${genre.toLowerCase()}%` });
+        .andWhere('LOWER(genre.name) LIKE :genre', {
+          genre: `%${genre.toLowerCase()}%`,
+        });
     }
-    
 
     const movies = await queryBuilder.getMany();
     return movies;
