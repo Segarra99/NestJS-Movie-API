@@ -66,6 +66,7 @@ export class MoviesService {
   ): Promise<Movie[]> {
     const queryBuilder = this.moviesRepository
       .createQueryBuilder('movie')
+      .orderBy('movie.id', 'ASC')
       .skip((page - 1) * pageSize) // Skip records based on the page number
       .take(pageSize); // Retrieve a specific number of records
 
