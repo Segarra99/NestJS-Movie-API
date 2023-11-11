@@ -65,8 +65,30 @@ export class MoviesService {
       throw new NotFoundException();
     }
 
-    Object.assign(movie, updateMovieDto);
+    // Extract genres from the DTO
+    const { genre: genreNames, ...otherDtoProps } = updateMovieDto;
 
+    // If genres are provided in the updateMovieDto
+    if (genreNames) {
+      // Split the genre string into an array for internal processing or validation
+      const genreArray = genreNames.split(',');
+
+      // Find existing genres
+      const existingGenres = await this.genreRepository.find({ where: { name: In(genreArray) } });
+
+      // Create genres that don't exist
+      const missingGenreNames = genreArray.filter((name) => !existingGenres.find((genre) => genre.name === name));
+      const newGenres = missingGenreNames.map((newGenreName) => this.genreRepository.create({ name: newGenreName }));
+      const savedGenres = await this.genreRepository.save(newGenres);
+
+      // Attach genres to the movie
+      movie.genres = [...existingGenres, ...savedGenres];
+    }
+
+    // Update other properties of the movie
+    Object.assign(movie, otherDtoProps);
+
+    // Save the movie with the associated genres
     return await this.moviesRepository.save(movie);
   }
 
