@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
 import { DeepPartial, In, Repository } from 'typeorm';
@@ -103,9 +103,19 @@ export class MoviesService {
   }
 
   async createGenre(createGenreDto: CreateGenreDto) {
+    // Check if the genre already exists
+    const existingGenre = await this.genreRepository.findOne({ where: { name: createGenreDto.name } });
+  
+    if (existingGenre) {
+      // If the genre already exists, you can choose to throw an error, return the existing genre, or handle it in a way that fits your application logic.
+      // For simplicity, let's throw an error.
+      throw new ConflictException('Genre already exists');
+    }
+  
+    // If the genre doesn't exist, create and save it
     const genre = this.genreRepository.create(createGenreDto);
     return await this.genreRepository.save(genre);
-  }
+  }  
 
   async findAllGenres() {
     return await this.genreRepository.find();
