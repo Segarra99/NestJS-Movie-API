@@ -129,19 +129,17 @@ export class MoviesService {
     let queryBuilder = this.moviesRepository.createQueryBuilder('movie');
 
     if (title) {
-      queryBuilder = queryBuilder.andWhere('movie.title LIKE :title', {
-        title: `%${title}%`,
+      queryBuilder.andWhere('LOWER(movie.title) LIKE LOWER(:title)', {
+        title: `%${title.toLowerCase()}%`,
       });
     }
 
     if (genre) {
-      queryBuilder = queryBuilder.innerJoin(
-        'movie.genres',
-        'genre',
-        'genre.name = :genre',
-        { genre },
-      );
+      queryBuilder = queryBuilder
+        .innerJoin('movie.genres', 'genre')
+        .andWhere('LOWER(genre.name) LIKE :genre', { genre: `%${genre.toLowerCase()}%` });
     }
+    
 
     const movies = await queryBuilder.getMany();
     return movies;

@@ -15,7 +15,17 @@ export class Movie {
   @Column()
   releaseDate: Date;
 
-  @ManyToMany(() => Genre, {cascade: true})
-  @JoinTable()
+  @ManyToMany(() => Genre, genre => genre.movies, { cascade: true })
+  @JoinTable({
+    name: 'movies_genres', // The name of the join table
+    joinColumn: {
+      name: 'movie_id', // The name of the column in the join table that references Movie
+      referencedColumnName: 'id',
+    },
+    inverseJoinColumn: {
+      name: 'genre_id', // The name of the column in the join table that references Genre
+      referencedColumnName: 'id',
+    },
+  })
   genres: Genre[];
 }

@@ -1,7 +1,7 @@
 import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Movie } from './movie.entity';
 
-@Entity({ name: 'genres' })
+@Entity({ name: 'genre' })
 export class Genre {
   @PrimaryGeneratedColumn()
   id: number;
@@ -9,6 +9,6 @@ export class Genre {
   @Column()
   name: string;
 
-  @ManyToMany(() => Movie, (movie) => movie.genres)
+  @ManyToMany(() => Movie, movie => movie.genres)
   movies: Movie[];
 }
