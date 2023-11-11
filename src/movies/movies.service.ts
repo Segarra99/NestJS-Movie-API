@@ -50,9 +50,14 @@ export class MoviesService {
   }
   
 
-  async findAllMovies() {
-    return await this.moviesRepository.find();
+  async findAllMovies(page: number = 1, pageSize: number = 10): Promise<Movie[]> {
+    const queryBuilder = this.moviesRepository.createQueryBuilder('movie')
+      .skip((page - 1) * pageSize) // Skip records based on the page number
+      .take(pageSize); // Retrieve a specific number of records
+  
+    return queryBuilder.getMany();
   }
+  
 
   async findOneMovie(id: number) {
     return await this.moviesRepository.findOne({ where: { id } });

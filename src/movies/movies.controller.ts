@@ -36,9 +36,10 @@ export class MoviesController {
   }
 
   @Get()
-  findAllMovies() {
-    return this.moviesService.findAllMovies();
+  findAllMovies(@Query('page') page: number, @Query('pageSize') pageSize: number) {
+    return this.moviesService.findAllMovies(page, pageSize);
   }
+  
 
   @Get(':id')
   findOneMovie(@Param('id') id: string) {
