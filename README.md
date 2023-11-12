@@ -19,8 +19,8 @@ This is a simple Movie API built with NestJS and PostgreSQL. It provides endpoin
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/Segarra99/movie-api.git
-cd movie-api
+git clone https://github.com/Segarra99/NestJS-Movie-API.git
+cd NestJS-Movie-API
 ```
 
 ### 2. Install Dependencies
